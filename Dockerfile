@@ -1,7 +1,7 @@
 FROM alpine:3.4
 MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
-ENV GLIBC_VERSION      2.23-r3
+ENV GLIBC_VERSION=2.23-r3
 
 ARG JAVA_VERSION_MAJOR
 ARG JAVA_VERSION_MINOR
@@ -9,28 +9,27 @@ ARG JAVA_VERSION_BUILD
 ARG JAVA_PACKAGE
 ARG JAVA_SHA256_SUM
 
-# installing curl
-RUN apk add --update curl
-RUN apk add --update unzip
+# installing tools
+RUN apk add --update unzip ca-certificates wget
 
 # Set environment
 ENV JAVA_HOME /opt/java
 ENV PATH ${PATH}:${JAVA_HOME}/bin
 
-RUN mkdir -p ${JAVA_HOME}
+RUN mkdir -p ${JAVA_HOME} && \
+    rm ${JAVA_HOME}
 
-RUN curl -Lo /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
-  curl -Lo glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
+RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
+  wget -O glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
   apk add glibc.apk && \
-  curl -Lo glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
+  wget -O glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
   apk add glibc-bin.apk && \
   /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
   echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf &&\
   rm -rf glibc.apk glibc-bin.apk /var/cache/apk/*
 
 # Download and unarchive Java
-RUN mkdir -p /opt &&\
-  curl -jkLH "Cookie: oraclelicense=accept-securebackup-cookie" -o java.tar.gz\
+RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
     http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/${JAVA_PACKAGE}-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz &&\
   echo "$JAVA_SHA256_SUM  java.tar.gz" | sha256sum -c - &&\
   gunzip -c java.tar.gz | tar -xf - -C /opt && rm -f java.tar.gz &&\
@@ -59,10 +58,9 @@ RUN mkdir -p /opt &&\
 
 # installing JCE
 RUN cd ${JAVA_HOME}/jre/lib/security &&\
-    curl -jkLH "Cookie: oraclelicense=accept-securebackup-cookie" -o jce_policy-8.zip http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip &&\
+    wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O jce_policy-8.zip http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip &&\
     unzip -o -j jce_policy-8.zip UnlimitedJCEPolicyJDK8/*.jar &&\
     rm -f jce_policy-8.zip
 
-# remove curl
-RUN apk del curl
-RUN apk del unzip
+# remove toold
+RUN apk del unzip wget ca-certificates
