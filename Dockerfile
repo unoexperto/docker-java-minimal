@@ -2,15 +2,28 @@ FROM alpine:3.4
 MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
 ENV GLIBC_VERSION      2.23-r3
-ENV JAVA_VERSION_MAJOR 8
-ENV JAVA_VERSION_MINOR 112
-ENV JAVA_VERSION_BUILD 15
-ENV JAVA_PACKAGE       server-jre
-ENV JAVA_SHA256_SUM    eb51dc02c1607be94249dc28b0223be3712b618ef72f48d3e2bfd2645db8b91a
+
+#ENV JAVA_VERSION_MAJOR 8
+#ENV JAVA_VERSION_MINOR 112
+#ENV JAVA_VERSION_BUILD 15
+#ENV JAVA_PACKAGE       server-jre
+#ENV JAVA_SHA256_SUM    eb51dc02c1607be94249dc28b0223be3712b618ef72f48d3e2bfd2645db8b91a
+
+ARG JAVA_VERSION_MAJOR
+ARG JAVA_VERSION_MINOR
+ARG JAVA_VERSION_BUILD
+ARG JAVA_PACKAGE
+ARG JAVA_SHA256_SUM
 
 # installing curl
 RUN apk add --update curl
 RUN apk add --update unzip
+
+# Set environment
+ENV JAVA_HOME /opt/jdk
+ENV PATH ${PATH}:${JAVA_HOME}/bin
+
+RUN mkdir -p ${JAVA_HOME}
 
 RUN curl -Lo /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
   curl -Lo glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
@@ -60,8 +73,5 @@ RUN cd /opt/jdk/jre/lib/security &&\
 RUN apk del curl
 RUN apk del unzip
 
-# Set environment
-ENV JAVA_HOME /opt/jdk
-ENV PATH ${PATH}:${JAVA_HOME}/bin
 
 #ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/urandom"]
