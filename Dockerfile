@@ -17,7 +17,7 @@ ENV JAVA_HOME /opt/java
 ENV PATH ${PATH}:${JAVA_HOME}/bin
 
 RUN mkdir -p ${JAVA_HOME} && \
-    rm ${JAVA_HOME}
+    rm -R ${JAVA_HOME}
 
 RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
   wget -O glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
