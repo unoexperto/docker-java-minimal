@@ -3,12 +3,11 @@ MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
 ENV GLIBC_VERSION=2.27-r0
 
-ENV JAVA_VERSION_MAJOR=8
-ENV JAVA_VERSION_MINOR=181
+ENV JAVA_VERSION=10.0.2
 ENV JAVA_VERSION_BUILD=13
-ENV JAVA_PACKAGE=server-jre
-ENV JAVA_SHA256_SUM=678e798008c398be98ba9d39d5114a9b4151f9d3023ccdce8b56f94c5d450698
-ENV JAVA_PATH_HASH=96a7b8442fe848ef90c96a2fad6ed6d1
+ENV JAVA_PACKAGE=serverjre
+ENV JAVA_SHA256_SUM=4ca492e0dd46c51bb3263d7347f6ede04fceb07fde3f01fed2c0336b18596c41
+ENV JAVA_PATH_HASH=19aef61b38124481863b1413dce1855f
 
 # installing tools
 RUN apk add --update unzip ca-certificates wget
@@ -31,7 +30,7 @@ RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sge
 
 # Download and unarchive Java
 RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
-    http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz &&\
+    http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
   echo "$JAVA_SHA256_SUM  java.tar.gz" | sha256sum -c - &&\
   gunzip -c java.tar.gz | tar -xf - -C /opt && rm -f java.tar.gz &&\
   ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME} &&\
@@ -56,12 +55,6 @@ RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar
          ${JAVA_HOME}/jre/lib/amd64/libjavafx*.so \
          ${JAVA_HOME}/jre/lib/amd64/libjfx*.so &&\
   rm -rf /var/cache/apk/*
-
-# installing JCE
-RUN cd ${JAVA_HOME}/jre/lib/security &&\
-    wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O jce_policy-8.zip http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip &&\
-    unzip -o -j jce_policy-8.zip UnlimitedJCEPolicyJDK8/*.jar &&\
-    rm -f jce_policy-8.zip
 
 # remove toold
 RUN apk del unzip wget ca-certificates

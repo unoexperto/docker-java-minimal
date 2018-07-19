@@ -2,7 +2,7 @@
 
 docker login
 
-docker build -t expert/docker-java-minimal:server-jre8 .
-docker push expert/docker-java-minimal:server-jre8
+docker build -t expert/docker-java-minimal:server-jre10 .
+docker push expert/docker-java-minimal:server-jre10
 
 docker logout
