@@ -19,21 +19,29 @@ ENV PATH ${PATH}:${JAVA_HOME}/bin
 RUN mkdir -p ${JAVA_HOME} && \
     rm -R ${JAVA_HOME}
 
-RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
-  wget -O glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
-  apk add glibc.apk && \
-  wget -O glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
-  apk add glibc-bin.apk && \
-  /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
-  echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf &&\
-  rm -rf glibc.apk glibc-bin.apk /var/cache/apk/*
+RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
+    && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
+    && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}.apk \
+    && apk add --allow-untrusted /tmp/${GLIBC_VERSION}.apk \
+    && curl -Ls https://www.archlinux.org/packages/core/x86_64/gcc-libs/download > /tmp/gcc-libs.tar.xz \
+    && mkdir /tmp/gcc \
+    && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
+    && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
+    && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
+    && curl -Ls https://www.archlinux.org/packages/core/x86_64/zlib/download > /tmp/libz.tar.xz \
+    && mkdir /tmp/libz \
+    && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
+    && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
+    && apk del binutils \
+    && rm -rf /tmp/${GLIBC_VERSION}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/* \
+    && echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
 # Download and unarchive Java
 RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
     http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
   echo "$JAVA_SHA256_SUM  java.tar.gz" | sha256sum -c - &&\
   gunzip -c java.tar.gz | tar -xf - -C /opt && rm -f java.tar.gz &&\
-  ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME} &&\
+  ln -s /opt/jdk-${JAVA_VERSION} ${JAVA_HOME} &&\
   rm -rf ${JAVA_HOME}/*src.zip \
          ${JAVA_HOME}/lib/missioncontrol \
          ${JAVA_HOME}/lib/visualvm \
