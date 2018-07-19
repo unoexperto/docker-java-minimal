@@ -1,7 +1,7 @@
-FROM alpine:3.4
+FROM alpine:3.6
 MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
-ENV GLIBC_VERSION=2.23-r3
+ENV GLIBC_VERSION=2.27-r0
 
 ARG JAVA_VERSION_MAJOR
 ARG JAVA_VERSION_MINOR
