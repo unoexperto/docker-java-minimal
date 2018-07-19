@@ -3,11 +3,12 @@ MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
 ENV GLIBC_VERSION=2.27-r0
 
-ARG JAVA_VERSION_MAJOR
-ARG JAVA_VERSION_MINOR
-ARG JAVA_VERSION_BUILD
-ARG JAVA_PACKAGE
-ARG JAVA_SHA256_SUM
+ENV JAVA_VERSION_MAJOR=8
+ENV JAVA_VERSION_MINOR=181
+ENV JAVA_VERSION_BUILD=13
+ENV JAVA_PACKAGE=jdk
+ENV JAVA_SHA256_SUM=1845567095bfbfebd42ed0d09397939796d05456290fb20a83c476ba09f991d3
+ENV JAVA_PATH_HASH=96a7b8442fe848ef90c96a2fad6ed6d1
 
 # installing tools
 RUN apk add --update unzip ca-certificates wget
@@ -30,7 +31,7 @@ RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sge
 
 # Download and unarchive Java
 RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
-    http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/${JAVA_PACKAGE}-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz &&\
+    http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz &&\
   echo "$JAVA_SHA256_SUM  java.tar.gz" | sha256sum -c - &&\
   gunzip -c java.tar.gz | tar -xf - -C /opt && rm -f java.tar.gz &&\
   ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME} &&\

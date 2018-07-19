@@ -2,10 +2,7 @@
 
 docker login
 
-docker build --build-arg JAVA_VERSION_MAJOR=8 --build-arg JAVA_VERSION_MINOR=112 --build-arg JAVA_VERSION_BUILD=15 --build-arg JAVA_PACKAGE=server-jre --build-arg JAVA_SHA256_SUM=eb51dc02c1607be94249dc28b0223be3712b618ef72f48d3e2bfd2645db8b91a -t expert/docker-java-minimal:server-jre .
-docker push expert/docker-java-minimal:server-jre
-
-docker build --build-arg JAVA_VERSION_MAJOR=8 --build-arg JAVA_VERSION_MINOR=112 --build-arg JAVA_VERSION_BUILD=15 --build-arg JAVA_PACKAGE=jdk --build-arg JAVA_SHA256_SUM=777bd7d5268408a5a94f5e366c2e43e720c6ce4fe8c59d9a71e2961e50d774a5 -t expert/docker-java-minimal:jdk .
-docker push expert/docker-java-minimal:jdk
+docker build -t expert/docker-java-minimal:jdk .
+docker push expert/docker-java-minimal:jdk8
 
 docker logout
