@@ -1,4 +1,4 @@
-FROM alpine:3.6
+FROM alpine:3.8
 MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
 ENV GLIBC_VERSION=2.27-r0
