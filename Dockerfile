@@ -1,7 +1,7 @@
 FROM alpine:latest
 MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
-ENV GLIBC_VERSION=2.27-r0
+ENV GLIBC_VERSION=2.28-r0
 
 ARG JAVA_VERSION_MAJOR
 ARG JAVA_VERSION_MINOR
