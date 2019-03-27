@@ -2,7 +2,7 @@
 
 docker login
 
-docker build -t expert/docker-java-minimal:jdk11 .
-docker push expert/docker-java-minimal:jdk11
+docker build -t expert/docker-java-minimal:jdk12-ubuntu .
+docker push expert/docker-java-minimal:jdk12-ubuntu
 
 docker logout
