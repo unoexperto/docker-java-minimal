@@ -23,6 +23,8 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}.apk \
     && apk add --allow-untrusted /tmp/${GLIBC_VERSION}.apk \
+    && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}-bin.apk \
+    && apk add --allow-untrusted /tmp/${GLIBC_VERSION}-bin.apk \
     && curl -Ls https://www.archlinux.org/packages/core/x86_64/gcc-libs/download > /tmp/gcc-libs.tar.xz \
     && mkdir /tmp/gcc \
     && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
@@ -33,7 +35,7 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils xz \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
     && apk del binutils \
-    && rm -rf /tmp/${GLIBC_VERSION}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/* \
+    && rm -rf /tmp/${GLIBC_VERSION}.apk /tmp/${GLIBC_VERSION}-bin.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/* \
     && echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
 # Download and unarchive Java
