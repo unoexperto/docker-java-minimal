@@ -1,13 +1,13 @@
 FROM alpine:latest
 MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
-ENV GLIBC_VERSION=2.28-r0
+ENV GLIBC_VERSION=2.33-r0
 
-ARG JAVA_VERSION_MAJOR
-ARG JAVA_VERSION_MINOR
-ARG JAVA_VERSION_BUILD
-ARG JAVA_PACKAGE
-ARG JAVA_SHA256_SUM
+ENV JAVA_VERSION=15.0.2
+ENV JAVA_VERSION_BUILD=7
+ENV JAVA_PACKAGE=jdk
+ENV JAVA_SHA256_SUM=54b29a3756671fcb4b6116931e03e86645632ec39361bc16ad1aaa67332c7c61 
+ENV JAVA_PATH_HASH=0d1cfde4252546c6931946de8db48ee2
 
 # installing tools
 RUN apk add --update unzip ca-certificates wget
@@ -19,21 +19,33 @@ ENV PATH ${PATH}:${JAVA_HOME}/bin
 RUN mkdir -p ${JAVA_HOME} && \
     rm -R ${JAVA_HOME}
 
-RUN wget -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub && \
-  wget -O glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
-  apk add glibc.apk && \
-  wget -O glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
-  apk add glibc-bin.apk && \
-  /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
-  echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf &&\
-  rm -rf glibc.apk glibc-bin.apk /var/cache/apk/*
+RUN apk --update add --no-cache ca-certificates curl openssl binutils tar zstd \
+    && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
+    && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}.apk \
+    && apk add --allow-untrusted /tmp/${GLIBC_VERSION}.apk \
+    && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}-bin.apk \
+    && rm /usr/glibc-compat/lib/ld-linux-x86-64.so.2 \
+    && ln -s /usr/glibc-compat/lib/ld-2.31.so /usr/glibc-compat/lib/ld-linux-x86-64.so.2 \
+    && apk add --allow-untrusted /tmp/${GLIBC_VERSION}-bin.apk \
+    && curl -Ls https://www.archlinux.org/packages/core/x86_64/gcc-libs/download > /tmp/gcc-libs.tar.xz \
+    && mkdir /tmp/gcc \
+    && tar -xf /tmp/gcc-libs.tar.xz -C /tmp/gcc \
+    && mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib \
+    && strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so* \
+    && curl -Ls https://www.archlinux.org/packages/core/x86_64/zlib/download > /tmp/libz.tar.zst \
+    && mkdir /tmp/libz \
+    && tar -xf /tmp/libz.tar.zst -C /tmp/libz \
+    && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
+    && apk del binutils zstd \
+    && rm -rf /tmp/${GLIBC_VERSION}.apk /tmp/${GLIBC_VERSION}-bin.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.zst /var/cache/apk/* \
+    && echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
 # Download and unarchive Java
 RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
-    http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-b${JAVA_VERSION_BUILD}/${JAVA_PACKAGE}-${JAVA_VERSION_MAJOR}u${JAVA_VERSION_MINOR}-linux-x64.tar.gz &&\
+    https://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
   echo "$JAVA_SHA256_SUM  java.tar.gz" | sha256sum -c - &&\
   gunzip -c java.tar.gz | tar -xf - -C /opt && rm -f java.tar.gz &&\
-  ln -s /opt/jdk1.${JAVA_VERSION_MAJOR}.0_${JAVA_VERSION_MINOR} ${JAVA_HOME} &&\
+  ln -s /opt/jdk-${JAVA_VERSION} ${JAVA_HOME} &&\
   rm -rf ${JAVA_HOME}/*src.zip \
          ${JAVA_HOME}/lib/missioncontrol \
          ${JAVA_HOME}/lib/visualvm \
@@ -56,11 +68,5 @@ RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar
          ${JAVA_HOME}/jre/lib/amd64/libjfx*.so &&\
   rm -rf /var/cache/apk/*
 
-# installing JCE
-RUN cd ${JAVA_HOME}/jre/lib/security &&\
-    wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O jce_policy-8.zip http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip &&\
-    unzip -o -j jce_policy-8.zip UnlimitedJCEPolicyJDK8/*.jar &&\
-    rm -f jce_policy-8.zip
-
-# remove toold
+# remove tools
 RUN apk del unzip wget ca-certificates
