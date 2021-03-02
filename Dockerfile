@@ -19,7 +19,7 @@ ENV PATH ${PATH}:${JAVA_HOME}/bin
 RUN mkdir -p ${JAVA_HOME} && \
     rm -R ${JAVA_HOME}
 
-RUN apk --update add --no-cache ca-certificates curl openssl binutils tar zstd \
+RUN apk --update add --no-cache ca-certificates curl openssl binutils tar xz zstd \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}.apk \
     && apk add --allow-untrusted /tmp/${GLIBC_VERSION}.apk \
