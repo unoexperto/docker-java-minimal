@@ -2,7 +2,7 @@
 
 docker login
 
-docker build -t expert/docker-java-minimal:jdk14-alpine .
-docker push expert/docker-java-minimal:jdk14-alpine
+docker build -t expert/docker-java-minimal:jdk16-alpine .
+docker push expert/docker-java-minimal:jdk16-alpine
 
 docker logout

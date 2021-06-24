@@ -1,13 +1,13 @@
 FROM alpine:latest
 MAINTAINER unoexperto <unoexperto.support@mailnull.com>
 
-ENV GLIBC_VERSION=2.31-r0
+ENV GLIBC_VERSION=2.33-r0
 
-ENV JAVA_VERSION=14.0.1
-ENV JAVA_VERSION_BUILD=7
+ENV JAVA_VERSION=16.0.1
+ENV JAVA_VERSION_BUILD=9
 ENV JAVA_PACKAGE=jdk
-ENV JAVA_SHA256_SUM=927cfcfff502c5e73db33bb6fee7f29f62bd0e831233fd78cd58a5b998bc73be
-ENV JAVA_PATH_HASH=664493ef4a6946b186ff29eb326336a2
+ENV JAVA_SHA256_SUM=caa0bfc0e9ee52f45c8f8ca803a23f132ef551297c6b9331b091110c5740a9bf
+ENV JAVA_PATH_HASH=7147401fd7354114ac51ef3e1328291f
 
 # installing tools
 RUN apk add --update unzip ca-certificates wget
@@ -19,7 +19,7 @@ ENV PATH ${PATH}:${JAVA_HOME}/bin
 RUN mkdir -p ${JAVA_HOME} && \
     rm -R ${JAVA_HOME}
 
-RUN apk --update add --no-cache ca-certificates curl openssl binutils tar zstd \
+RUN apk --update add --no-cache ca-certificates curl openssl binutils tar zstd xz \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}.apk \
     && apk add --allow-untrusted /tmp/${GLIBC_VERSION}.apk \
@@ -40,6 +40,7 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils tar zstd \
     && rm -rf /tmp/${GLIBC_VERSION}.apk /tmp/${GLIBC_VERSION}-bin.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.zst /var/cache/apk/* \
     && echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
+# https://download.oracle.com/otn-pub/java/jdk/16.0.1+9/7147401fd7354114ac51ef3e1328291f/jdk-16.0.1_linux-x64_bin.tar.gz?AuthParam=1624530172_53505382aef773380bf26f2c594d9e28
 # Download and unarchive Java
 RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
     http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
