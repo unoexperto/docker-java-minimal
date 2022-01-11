@@ -1,12 +1,15 @@
-FROM alpine:latest
-MAINTAINER unoexperto <unoexperto.support@mailnull.com>
+#FROM expert/docker-java-minimal:jdk15-alpine
+FROM alpine:3.15.0
+LABEL maintainer="unoexperto <unoexperto.support@mailnull.com>"
 
 ENV GLIBC_VERSION=2.33-r0
 
 ENV JAVA_VERSION=15.0.2
 ENV JAVA_VERSION_BUILD=7
-ENV JAVA_PACKAGE=jdk
-ENV JAVA_SHA256_SUM=54b29a3756671fcb4b6116931e03e86645632ec39361bc16ad1aaa67332c7c61 
+#ENV JAVA_PACKAGE=jdk
+ENV JAVA_PACKAGE=openjdk
+#ENV JAVA_SHA256_SUM=54b29a3756671fcb4b6116931e03e86645632ec39361bc16ad1aaa67332c7c61 
+ENV JAVA_SHA256_SUM=91ac6fc353b6bf39d995572b700e37a20e119a87034eeb939a6f24356fbcd207
 ENV JAVA_PATH_HASH=0d1cfde4252546c6931946de8db48ee2
 
 # installing tools
@@ -17,9 +20,8 @@ ENV JAVA_HOME /opt/java
 ENV PATH ${PATH}:${JAVA_HOME}/bin
 
 RUN mkdir -p ${JAVA_HOME} && \
-    rm -R ${JAVA_HOME}
-
-RUN apk --update add --no-cache ca-certificates curl openssl binutils tar xz zstd \
+    rm -R ${JAVA_HOME} && \
+    apk --update add --no-cache ca-certificates curl openssl binutils tar xz zstd \
     && ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download" \
     && curl -Ls ${ALPINE_GLIBC_REPO}/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk > /tmp/${GLIBC_VERSION}.apk \
     && apk add --allow-untrusted /tmp/${GLIBC_VERSION}.apk \
@@ -42,7 +44,8 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils tar xz zst
 
 # Download and unarchive Java
 RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
-    https://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
+#    https://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
+    https://download.java.net/java/GA/jdk${JAVA_VERSION}/${JAVA_PATH_HASH}/${JAVA_VERSION_BUILD}/GPL/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
   echo "$JAVA_SHA256_SUM  java.tar.gz" | sha256sum -c - &&\
   gunzip -c java.tar.gz | tar -xf - -C /opt && rm -f java.tar.gz &&\
   ln -s /opt/jdk-${JAVA_VERSION} ${JAVA_HOME} &&\
