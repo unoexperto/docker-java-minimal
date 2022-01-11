@@ -2,7 +2,7 @@
 
 docker login
 
-docker build -t expert/docker-java-minimal:jdk16-alpine .
-docker push expert/docker-java-minimal:jdk16-alpine
+docker build -t bitparticles/base:jdk16-alpine3.15.0 .
+docker push bitparticles/base:jdk16-alpine3.15.0 
 
 docker logout

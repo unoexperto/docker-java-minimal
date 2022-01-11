@@ -1,12 +1,15 @@
-FROM alpine:latest
-MAINTAINER unoexperto <unoexperto.support@mailnull.com>
+FROM alpine:3.15.0
+LABEL maintainer="unoexperto <unoexperto.support@mailnull.com>"
 
 ENV GLIBC_VERSION=2.33-r0
 
-ENV JAVA_VERSION=16.0.1
-ENV JAVA_VERSION_BUILD=9
+#ENV JAVA_VERSION=16.0.1
+ENV JAVA_VERSION=16.0.2
+#ENV JAVA_VERSION_BUILD=9
+ENV JAVA_VERSION_BUILD=7
 ENV JAVA_PACKAGE=jdk
-ENV JAVA_SHA256_SUM=caa0bfc0e9ee52f45c8f8ca803a23f132ef551297c6b9331b091110c5740a9bf
+#ENV JAVA_SHA256_SUM=caa0bfc0e9ee52f45c8f8ca803a23f132ef551297c6b9331b091110c5740a9bf
+ENV JAVA_SHA256_SUM=85788b1a1f470ca7ddc576028f29abbc3bc3b08f82dd811a3e24371689d7dc0f
 ENV JAVA_PATH_HASH=7147401fd7354114ac51ef3e1328291f
 
 # installing tools
@@ -43,7 +46,8 @@ RUN apk --update add --no-cache ca-certificates curl openssl binutils tar zstd x
 # https://download.oracle.com/otn-pub/java/jdk/16.0.1+9/7147401fd7354114ac51ef3e1328291f/jdk-16.0.1_linux-x64_bin.tar.gz?AuthParam=1624530172_53505382aef773380bf26f2c594d9e28
 # Download and unarchive Java
 RUN wget --header="Cookie: oraclelicense=accept-securebackup-cookie" -O java.tar.gz\
-    http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
+    #http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}+${JAVA_VERSION_BUILD}/${JAVA_PATH_HASH}/${JAVA_PACKAGE}-${JAVA_VERSION}_linux-x64_bin.tar.gz &&\
+    https://github.com/adoptium/temurin16-binaries/releases/download/${JAVA_PACKAGE}-${JAVA_VERSION}+${JAVA_VERSION_BUILD}/OpenJDK16U-jdk_x64_alpine-linux_hotspot_${JAVA_VERSION}_${JAVA_VERSION_BUILD}.tar.gz &&\
   echo "$JAVA_SHA256_SUM  java.tar.gz" | sha256sum -c - &&\
   gunzip -c java.tar.gz | tar -xf - -C /opt && rm -f java.tar.gz &&\
   ln -s /opt/jdk-${JAVA_VERSION} ${JAVA_HOME} &&\
